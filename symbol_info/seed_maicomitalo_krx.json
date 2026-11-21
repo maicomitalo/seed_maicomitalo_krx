@@ -1,0 +1,8 @@
+{
+  "symbol": ["KRX_FOREIGN_NET"],
+  "description": ["KRX KOSPI Foreign Net Purchase (Billion KRW)"],
+  "pricescale": [100],
+  "minmov": [1],
+  "type": ["economic"],
+  "exchange": ["KRX"]
+}
