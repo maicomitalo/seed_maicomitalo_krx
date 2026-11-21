@@ -23,9 +23,44 @@ def get_krx_foreign_net(target_date_str):
         "endDd": target_date_str
     }
 
-    response = requests.post(url, data=payload, headers=headers, timeout=15)
-    response.raise_for_status()
+    session = requests.Session()
+
+session.headers.update({
+    "User-Agent": headers["User-Agent"],
+    "Accept": "application/json, text/javascript, */*; q=0.01",
+    "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
+    "Origin": "https://data.krx.co.kr",
+    "X-Requested-With": "XMLHttpRequest"
+})
+
+# Inicializa a sessão no site oficial
+session.get(
+    "https://data.krx.co.kr/contents/MDC/MDI/outerLoader/index.cmd?screenId=MDCSTAT022",
+    timeout=15
+)
+
+# Realiza a consulta
+response = session.post(
+    "https://data.krx.co.kr/comm/bldAttendant/getJsonData.cmd",
+    data=payload,
+    headers={
+        "Referer": "https://data.krx.co.kr/contents/MDC/MDI/outerLoader/index.cmd?screenId=MDCSTAT022"
+    },
+    timeout=20
+)
+
+print("Status HTTP:", response.status_code)
+print("Content-Type:", response.headers.get("Content-Type"))
+print("Resposta recebida:", response.text[:500])
+
+response.raise_for_status()
+
+try:
     data = response.json()
+except ValueError:
+    raise RuntimeError(
+        "O KRX não retornou JSON. Verifique a resposta impressa acima."
+    )
 
     # Procura a linha de Estrangeiros (외국인)
     for row in data.get("output", []):
